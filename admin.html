@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>後台管理 - 專款給付癌症新藥統整表</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: #1f2937;
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 600; }
+    .topbar-actions { display: flex; gap: 10px; }
+    .topbar-actions a, .topbar-actions button {
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); }
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+    .btn-danger-outline:hover { background: rgba(239,68,68,0.15); }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .toolbar-left {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    /* ── Drug list ── */
+    .drug-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .drug-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      transition: box-shadow 0.15s;
+    }
+    .drug-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    .drug-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .drug-card-header:hover { background: #f9fafb; }
+
+    .drug-card-info { display: flex; align-items: center; gap: 14px; }
+    .drug-card-info .product-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #111827;
+    }
+    .drug-card-info .disease-tag {
+      font-size: 0.75rem;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .drug-card-info .ingredient {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .drug-card-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { background: #f3f4f6; color: #111827; }
+    .icon-btn.danger:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+
+    .chevron {
+      transition: transform 0.2s;
+      color: #9ca3af;
+    }
+    .drug-card.open .chevron { transform: rotate(180deg); }
+
+    .drug-card-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .drug-card.open .drug-card-body { display: block; }
+
+    /* ── Form grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.78rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .form-group input, .form-group textarea {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      color: #1f2937;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+
+    /* ── Yearly data section ── */
+    .yearly-section {
+      margin-top: 20px;
+    }
+    .yearly-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .yearly-header h3 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-sm:hover { background: #f3f4f6; }
+    .btn-sm.danger { color: #dc2626; border-color: #fca5a5; }
+    .btn-sm.danger:hover { background: #fef2f2; }
+    .btn-sm.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .btn-sm.primary:hover { background: #1d4ed8; }
+
+    .yearly-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .yearly-table th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #f9fafb;
+      color: #6b7280;
+      font-weight: 500;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .yearly-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .yearly-table input {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 0.85rem;
+      color: #1f2937;
+    }
+    .yearly-table input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    /* ── Save bar ── */
+    .drug-card-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .btn-cancel {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .btn-cancel:hover { background: #f3f4f6; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #065f46;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Column list items ── */
+    .col-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: grab;
+      transition: box-shadow 0.15s;
+    }
+    .col-item:active { cursor: grabbing; }
+    .col-item:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .col-item.dragging { opacity: 0.5; }
+    .col-item .drag-handle {
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+    .col-item .col-name {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    .col-item .col-actions { display: flex; gap: 4px; }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid.cols-3 { grid-template-columns: 1fr; }
+      .drug-card-info { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>後台管理</h1>
+    <div class="topbar-actions">
+      <a href="index.html" class="btn-outline">前往前台</a>
+      <button class="btn-danger-outline" onclick="resetData()">重設為預設資料</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- ── Column management ── -->
+    <div class="section-card" style="background:#fff;border-radius:10px;padding:20px 24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #e5e7eb">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h2 style="font-size:1rem;font-weight:700;color:#111827">欄位管理</h2>
+        <button class="btn-sm primary" onclick="openColModal()">+ 新增欄位</button>
+      </div>
+      <p style="font-size:0.82rem;color:#9ca3af;margin-bottom:14px">自訂欄位會顯示在前台表格的「專款預估支用額度」與「適應症給付範圍」之間。拖曳可排序。</p>
+      <div id="colList"></div>
+      <div id="colEmpty" style="text-align:center;padding:16px;color:#9ca3af;font-size:0.88rem;display:none">尚未新增自訂欄位</div>
+    </div>
+
+    <div class="toolbar">
+      <span class="toolbar-left" id="drugCount"></span>
+      <button class="btn-primary" onclick="openAddModal()">+ 新增藥品</button>
+    </div>
+    <div class="drug-list" id="drugList"></div>
+  </div>
+
+  <!-- Column Add/Edit Modal -->
+  <div class="modal-overlay" id="colModalOverlay">
+    <div class="modal" style="max-width:420px">
+      <h2 id="colModalTitle">新增欄位</h2>
+      <input type="hidden" id="colEditId">
+      <div class="form-group" style="margin-bottom:16px">
+        <label>欄位名稱</label>
+        <input type="text" id="colName" placeholder="例如：藥品許可證核發日期">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeColModal()">取消</button>
+        <button class="btn-primary" onclick="saveColModal()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 id="modalTitle">新增藥品</h2>
+      <input type="hidden" id="editId">
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>商品名 (中文/英文)</label>
+          <input type="text" id="mProduct" placeholder="吉舒達 / Keytruda">
+        </div>
+        <div class="form-group">
+          <label>成分名</label>
+          <input type="text" id="mIngredient" placeholder="Pembrolizumab">
+        </div>
+        <div class="form-group">
+          <label>疾病別</label>
+          <input type="text" id="mDisease" placeholder="非小細胞肺癌">
+        </div>
+        <div class="form-group">
+          <label>專款給付生效日期</label>
+          <input type="text" id="mEffectiveDate" placeholder="2025.6.1">
+        </div>
+        <div class="form-group full">
+          <label>適應症給付範圍 (每行一條)</label>
+          <textarea id="mIndication" rows="3" placeholder="每行輸入一條適應症"></textarea>
+        </div>
+      </div>
+
+      <div id="customFieldsSection" style="display:none">
+        <div style="margin-top:16px;margin-bottom:8px;font-size:0.88rem;font-weight:600;color:#374151">自訂欄位</div>
+        <div class="form-grid" id="customFieldsGrid"></div>
+      </div>
+
+      <div class="yearly-section">
+        <div class="yearly-header">
+          <h3>年度預估資料</h3>
+          <button class="btn-sm primary" onclick="addModalYear()">+ 新增年度</button>
+        </div>
+        <table class="yearly-table">
+          <thead>
+            <tr>
+              <th style="width:80px">年度</th>
+              <th>嘉惠人數</th>
+              <th>藥費影響</th>
+              <th>專款額度</th>
+              <th style="width:50px"></th>
+            </tr>
+          </thead>
+          <tbody id="mYearlyBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn-primary" onclick="saveModal()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="data.js"></script>
+  <script>
+    let data = loadData();
+    let columns = loadColumns();
+
+    // ══════════════════════════════════
+    // ── Column Management ──
+    // ══════════════════════════════════
+    function renderColumns() {
+      const list = document.getElementById("colList");
+      const empty = document.getElementById("colEmpty");
+
+      if (!columns.length) {
+        list.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      list.innerHTML = columns.map((c, i) => `
+        <div class="col-item" draggable="true" data-col-idx="${i}">
+          <span class="drag-handle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+          </span>
+          <span class="col-name">${c.name}</span>
+          <div class="col-actions">
+            <button class="icon-btn" title="編輯" onclick="openColEditModal(${c.id})">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-btn danger" title="刪除" onclick="deleteColumn(${c.id})">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+
+      // Drag & drop reorder
+      let dragIdx = null;
+      list.querySelectorAll(".col-item").forEach(el => {
+        el.addEventListener("dragstart", (e) => {
+          dragIdx = Number(el.dataset.colIdx);
+          el.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+        });
+        el.addEventListener("dragend", () => {
+          el.classList.remove("dragging");
+          dragIdx = null;
+        });
+        el.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        });
+        el.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const dropIdx = Number(el.dataset.colIdx);
+          if (dragIdx !== null && dragIdx !== dropIdx) {
+            const moved = columns.splice(dragIdx, 1)[0];
+            columns.splice(dropIdx, 0, moved);
+            saveColumns(columns);
+            renderColumns();
+          }
+        });
+      });
+    }
+
+    function openColModal() {
+      document.getElementById("colModalTitle").textContent = "新增欄位";
+      document.getElementById("colEditId").value = "";
+      document.getElementById("colName").value = "";
+      document.getElementById("colModalOverlay").classList.add("active");
+    }
+
+    function openColEditModal(id) {
+      const col = columns.find(c => c.id === id);
+      document.getElementById("colModalTitle").textContent = "編輯欄位";
+      document.getElementById("colEditId").value = id;
+      document.getElementById("colName").value = col.name;
+      document.getElementById("colModalOverlay").classList.add("active");
+    }
+
+    function closeColModal() {
+      document.getElementById("colModalOverlay").classList.remove("active");
+    }
+
+    function saveColModal() {
+      const name = document.getElementById("colName").value.trim();
+      if (!name) { alert("請輸入欄位名稱"); return; }
+
+      const editId = document.getElementById("colEditId").value;
+      if (editId !== "") {
+        const col = columns.find(c => c.id === Number(editId));
+        col.name = name;
+      } else {
+        columns.push({ id: getNextColId(columns), name });
+      }
+      saveColumns(columns);
+      closeColModal();
+      renderColumns();
+      showToast(editId !== "" ? "已更新欄位" : "已新增欄位");
+    }
+
+    function deleteColumn(id) {
+      const col = columns.find(c => c.id === id);
+      if (!confirm(`確定要刪除欄位「${col.name}」嗎？所有藥品中此欄位的資料也會清除。`)) return;
+      columns = columns.filter(c => c.id !== id);
+      saveColumns(columns);
+      // Clean custom data from drugs
+      data.forEach(d => { if (d.custom) delete d.custom[id]; });
+      saveData(data);
+      renderColumns();
+      showToast("已刪除欄位");
+    }
+
+    document.getElementById("colModalOverlay").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeColModal();
+    });
+
+    // ══════════════════════════════════
+    // ── Render drug list ──
+    function renderList() {
+      const list = document.getElementById("drugList");
+      document.getElementById("drugCount").textContent = `共 ${data.length} 筆藥品`;
+
+      list.innerHTML = data.map(d => {
+        const years = Object.keys(d.yearly).sort();
+        return `
+        <div class="drug-card" data-id="${d.id}">
+          <div class="drug-card-header" onclick="toggleCard(this)">
+            <div class="drug-card-info">
+              <span class="product-name">${d.product}</span>
+              <span class="disease-tag">${d.disease}</span>
+              <span class="ingredient">${d.ingredient}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="drug-card-actions" onclick="event.stopPropagation()">
+                <button class="icon-btn" title="編輯" onclick="openEditModal(${d.id})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="icon-btn danger" title="刪除" onclick="deleteDrug(${d.id})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+              <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="drug-card-body">
+            <div class="form-grid" style="margin-top:12px">
+              <div class="form-group">
+                <label>專款給付生效日期</label>
+                <span style="font-size:0.9rem;color:#374151;padding:4px 0">${d.effectiveDate}</span>
+              </div>
+              <div class="form-group">
+                <label>年度範圍</label>
+                <span style="font-size:0.9rem;color:#374151;padding:4px 0">${years[0]} - ${years[years.length-1]}</span>
+              </div>
+              <div class="form-group full">
+                <label>適應症給付範圍</label>
+                <ul style="font-size:0.85rem;color:#4b5563;padding-left:18px;margin-top:4px;line-height:1.6">
+                  ${d.indication.map(t => `<li>${t}</li>`).join("")}
+                </ul>
+              </div>
+              ${columns.length ? columns.map(c => `
+              <div class="form-group">
+                <label>${c.name}</label>
+                <span style="font-size:0.9rem;color:#374151;padding:4px 0">${(d.custom && d.custom[c.id]) || "-"}</span>
+              </div>`).join("") : ""}
+            </div>
+            <div class="yearly-section" style="margin-top:14px">
+              <h3 style="font-size:0.85rem;color:#374151;font-weight:600;margin-bottom:8px">年度預估資料</h3>
+              <table class="yearly-table">
+                <thead><tr><th>年度</th><th>嘉惠人數</th><th>藥費影響</th><th>專款額度</th></tr></thead>
+                <tbody>
+                  ${years.map(y => {
+                    const yd = d.yearly[y];
+                    return `<tr><td><strong>${y}</strong></td><td>${yd.people}</td><td>${yd.cost}</td><td>${yd.budget}</td></tr>`;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function toggleCard(header) {
+      header.closest(".drug-card").classList.toggle("open");
+    }
+
+    // ── Delete ──
+    function deleteDrug(id) {
+      const drug = data.find(d => d.id === id);
+      if (!confirm(`確定要刪除「${drug.product}」嗎？`)) return;
+      data = data.filter(d => d.id !== id);
+      saveData(data);
+      renderList();
+      showToast("已刪除藥品");
+    }
+
+    // ── Reset ──
+    function resetData() {
+      if (!confirm("確定要重設為預設資料嗎？所有修改（包含自訂欄位）將遺失。")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(COLUMNS_KEY);
+      data = loadData();
+      columns = loadColumns();
+      renderColumns();
+      renderList();
+      showToast("已重設為預設資料");
+    }
+
+    // ── Custom fields in modal ──
+    function renderModalCustomFields(customData) {
+      const section = document.getElementById("customFieldsSection");
+      const grid = document.getElementById("customFieldsGrid");
+      if (!columns.length) {
+        section.style.display = "none";
+        return;
+      }
+      section.style.display = "block";
+      grid.innerHTML = columns.map(c => `
+        <div class="form-group">
+          <label>${c.name}</label>
+          <input type="text" class="custom-col-input" data-col-id="${c.id}" value="${(customData && customData[c.id]) || ""}" placeholder="輸入${c.name}">
+        </div>
+      `).join("");
+    }
+
+    // ── Modal ──
+    function openAddModal() {
+      document.getElementById("modalTitle").textContent = "新增藥品";
+      document.getElementById("editId").value = "";
+      document.getElementById("mProduct").value = "";
+      document.getElementById("mIngredient").value = "";
+      document.getElementById("mDisease").value = "";
+      document.getElementById("mEffectiveDate").value = "";
+      document.getElementById("mIndication").value = "";
+      renderModalCustomFields({});
+
+      const tbody = document.getElementById("mYearlyBody");
+      tbody.innerHTML = "";
+      addModalYearRow(new Date().getFullYear(), "", "", "");
+
+      document.getElementById("modalOverlay").classList.add("active");
+    }
+
+    function openEditModal(id) {
+      const d = data.find(x => x.id === id);
+      document.getElementById("modalTitle").textContent = "編輯藥品";
+      document.getElementById("editId").value = id;
+      document.getElementById("mProduct").value = d.product;
+      document.getElementById("mIngredient").value = d.ingredient;
+      document.getElementById("mDisease").value = d.disease;
+      document.getElementById("mEffectiveDate").value = d.effectiveDate;
+      document.getElementById("mIndication").value = d.indication.join("\n");
+      renderModalCustomFields(d.custom || {});
+
+      const tbody = document.getElementById("mYearlyBody");
+      tbody.innerHTML = "";
+      Object.keys(d.yearly).sort().forEach(y => {
+        const yd = d.yearly[y];
+        addModalYearRow(y, yd.people, yd.cost, yd.budget);
+      });
+
+      document.getElementById("modalOverlay").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("active");
+    }
+
+    function addModalYear() {
+      const rows = document.getElementById("mYearlyBody").querySelectorAll("tr");
+      let nextYear = new Date().getFullYear();
+      if (rows.length) {
+        const last = Number(rows[rows.length - 1].querySelector(".year-input").value);
+        nextYear = last + 1;
+      }
+      addModalYearRow(nextYear, "", "", "");
+    }
+
+    function addModalYearRow(year, people, cost, budget) {
+      const tbody = document.getElementById("mYearlyBody");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="number" class="year-input" value="${year}" style="width:70px"></td>
+        <td><input type="text" class="people-input" value="${people}" placeholder="34 人"></td>
+        <td><input type="text" class="cost-input" value="${cost}" placeholder="1.77 億"></td>
+        <td><input type="text" class="budget-input" value="${budget}" placeholder="1.623 億"></td>
+        <td><button class="btn-sm danger" onclick="this.closest('tr').remove()">刪除</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function saveModal() {
+      const product = document.getElementById("mProduct").value.trim();
+      const ingredient = document.getElementById("mIngredient").value.trim();
+      const disease = document.getElementById("mDisease").value.trim();
+      const effectiveDate = document.getElementById("mEffectiveDate").value.trim();
+      const indicationText = document.getElementById("mIndication").value.trim();
+
+      if (!product || !ingredient || !disease || !effectiveDate) {
+        alert("請填寫商品名、成分名、疾病別及生效日期");
+        return;
+      }
+
+      const indication = indicationText ? indicationText.split("\n").map(s => s.trim()).filter(Boolean) : [];
+
+      // Collect yearly data
+      const yearly = {};
+      const rows = document.getElementById("mYearlyBody").querySelectorAll("tr");
+      for (const tr of rows) {
+        const y = tr.querySelector(".year-input").value.trim();
+        const p = tr.querySelector(".people-input").value.trim();
+        const c = tr.querySelector(".cost-input").value.trim();
+        const b = tr.querySelector(".budget-input").value.trim();
+        if (y) {
+          yearly[Number(y)] = { people: p, cost: c, budget: b };
+        }
+      }
+
+      if (!Object.keys(yearly).length) {
+        alert("請至少新增一筆年度資料");
+        return;
+      }
+
+      // Collect custom column values
+      const custom = {};
+      document.querySelectorAll("#customFieldsGrid .custom-col-input").forEach(inp => {
+        const val = inp.value.trim();
+        if (val) custom[Number(inp.dataset.colId)] = val;
+      });
+
+      const editId = document.getElementById("editId").value;
+
+      if (editId !== "") {
+        const idx = data.findIndex(d => d.id === Number(editId));
+        data[idx] = { ...data[idx], product, ingredient, disease, effectiveDate, indication, yearly, custom };
+      } else {
+        data.push({
+          id: getNextId(data),
+          product, ingredient, disease, effectiveDate, indication, yearly, custom
+        });
+      }
+
+      saveData(data);
+      closeModal();
+      renderList();
+      showToast(editId !== "" ? "已更新藥品" : "已新增藥品");
+    }
+
+    // Close modal on overlay click
+    document.getElementById("modalOverlay").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // ── Toast ──
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2000);
+    }
+
+    // ── Init ──
+    renderColumns();
+    renderList();
+  </script>
+</body>
+</html>

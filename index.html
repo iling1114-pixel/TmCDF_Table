@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專款給付癌症新藥統整表</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", "微軟正黑體", sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      color: #111827;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    .select-wrapper select {
+      appearance: none;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px 40px 10px 16px;
+      font-size: 0.95rem;
+      color: #374151;
+      cursor: pointer;
+      min-width: 160px;
+    }
+
+    .select-wrapper::after {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #6b7280;
+      pointer-events: none;
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-wrapper input {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px 16px 10px 40px;
+      font-size: 0.95rem;
+      color: #374151;
+      min-width: 200px;
+    }
+
+    .search-wrapper input::placeholder {
+      color: #9ca3af;
+    }
+
+    .search-wrapper svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    /* Desktop table */
+    .table-wrapper {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      white-space: nowrap;
+    }
+
+    thead th {
+      background: #f9fafb;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #374151;
+      padding: 14px 20px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* Sticky first column */
+    thead th:first-child,
+    tbody td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+    }
+
+    thead th:first-child {
+      background: #f9fafb;
+      z-index: 3;
+    }
+
+    tbody td:first-child {
+      background: #fff;
+      font-weight: 500;
+      color: #111827;
+    }
+
+    tbody tr:hover td:first-child {
+      background: #f9fafb;
+    }
+
+    /* Shadow on sticky column when scrolled */
+    thead th:first-child::after,
+    tbody td:first-child::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -6px;
+      bottom: 0;
+      width: 6px;
+      pointer-events: none;
+      background: linear-gradient(to right, rgba(0,0,0,0.04), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .table-scroll.scrolled thead th:first-child::after,
+    .table-scroll.scrolled tbody td:first-child::after {
+      opacity: 1;
+    }
+
+    thead th .info-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid #9ca3af;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 14px;
+      font-size: 11px;
+      color: #9ca3af;
+      margin-left: 4px;
+      vertical-align: middle;
+      cursor: help;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f3f4f6;
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    tbody td {
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      color: #4b5563;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .num {
+      text-align: right;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      color: #6b7280;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .link-btn:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .detail-cell {
+      position: relative;
+    }
+
+    .detail-link {
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .detail-link:hover {
+      color: #111827;
+      text-decoration: underline;
+    }
+
+    .calendar-cell {
+      text-align: center;
+    }
+
+    .calendar-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .calendar-icon:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    /* Inline year select */
+    .year-select {
+      appearance: none;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 4px 28px 4px 10px;
+      font-size: 0.85rem;
+      color: #374151;
+      cursor: pointer;
+      font-weight: 500;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: all 0.15s;
+    }
+
+    .year-select:hover {
+      border-color: #9ca3af;
+      background-color: #e5e7eb;
+    }
+
+    .year-select:focus {
+      outline: none;
+      border-color: #6b7280;
+      box-shadow: 0 0 0 2px rgba(107,114,128,0.15);
+    }
+
+    /* Mobile year select */
+    .card-year-select {
+      appearance: none;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 4px 28px 4px 10px;
+      font-size: 0.9rem;
+      color: #374151;
+      font-weight: 500;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      background: #1f2937;
+      color: #f3f4f6;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      padding: 16px 18px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      z-index: 9999;
+      white-space: normal;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .tooltip.size-auto {
+      width: auto;
+      max-width: 360px;
+      white-space: nowrap;
+    }
+
+    .tooltip.size-wide {
+      width: 420px;
+      max-width: 90vw;
+    }
+
+    .tooltip.above {
+      transform: translateY(6px);
+    }
+
+    .tooltip.below {
+      transform: translateY(-6px);
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      border-width: 8px;
+      border-style: solid;
+    }
+
+    .tooltip.above::after {
+      top: 100%;
+      left: var(--arrow-left, 50%);
+      transform: translateX(-50%);
+      border-color: #1f2937 transparent transparent transparent;
+    }
+
+    .tooltip.below::after {
+      bottom: 100%;
+      left: var(--arrow-left, 50%);
+      transform: translateX(-50%);
+      border-color: transparent transparent #1f2937 transparent;
+    }
+
+    .tooltip-header {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #fff;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .tooltip ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .tooltip li {
+      margin-bottom: 4px;
+    }
+
+    .tooltip li:last-child {
+      margin-bottom: 0;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+      font-size: 0.95rem;
+    }
+
+    /* Mobile card layout */
+    .card-list {
+      display: none;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-disease {
+      font-size: 0.8rem;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card-field label {
+      display: block;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+
+    .card-field span {
+      font-size: 0.9rem;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .card-actions a {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #374151;
+      background: #f3f4f6;
+      transition: background 0.15s;
+    }
+
+    .card-actions a:hover {
+      background: #e5e7eb;
+    }
+
+    .card-indication {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #374151;
+    }
+
+    .card-indication ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .card-indication li {
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+      }
+
+      .table-wrapper {
+        display: none;
+      }
+
+      .card-list {
+        display: block;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .select-wrapper select,
+      .search-wrapper input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>專款給付癌症新藥統整表</h1>
+
+    <div class="controls">
+      <div class="select-wrapper">
+        <select id="filterDisease">
+          <option value="">疾病別</option>
+        </select>
+      </div>
+      <div class="search-wrapper">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="搜尋">
+      </div>
+    </div>
+
+    <!-- Desktop table -->
+    <div class="table-wrapper">
+      <div class="table-scroll" id="tableScroll">
+        <table>
+          <thead id="tableHead">
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="no-results" id="noResults" style="display:none;">找不到符合條件的資料</div>
+    </div>
+
+    <!-- Mobile card view -->
+    <div class="card-list" id="cardList"></div>
+    <div class="no-results" id="noResultsMobile" style="display:none;">找不到符合條件的資料</div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const data = loadData();
+    const customColumns = loadColumns();
+
+    // ---- legacy inline data kept as fallback reference (not used at runtime) ----
+    const _LEGACY = [{
+        id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+        yearly: {
+          2025: { people: "34 人",    cost: "1.77 億",  budget: "1.623 億" },
+          2026: { people: "58 人",    cost: "3.02 億",  budget: "3.02 億" },
+          2027: { people: "79 人",    cost: "4.12 億",  budget: "4.12 億" },
+          2028: { people: "95 人",    cost: "4.95 億",  budget: "4.95 億" },
+          2029: { people: "108 人",   cost: "5.63 億",  budget: "5.63 億" },
+        },
+        indication: [
+          "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
+          "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 pembrolizumab 與 pemetrexed (限使用 Pexeda 或 Apeta) 及含鉑類化學療法併用做為轉移性，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
+        ]
+      },
+      {
+        id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "2025.6.1",
+        yearly: {
+          2025: { people: "24 人",    cost: "1.04 億",  budget: "0.763 億" },
+          2026: { people: "41 人",    cost: "1.78 億",  budget: "1.78 億" },
+          2027: { people: "55 人",    cost: "2.39 億",  budget: "2.39 億" },
+          2028: { people: "66 人",    cost: "2.87 億",  budget: "2.87 億" },
+          2029: { people: "75 人",    cost: "3.26 億",  budget: "3.26 億" },
+        },
+        indication: [
+          "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
+          "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 atezolizumab 與 bevacizumab (限使用 Avastin) 及 carboplatin、paclitaxel 併用，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
+        ]
+      },
+      {
+        id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "芮博定 / Rybrevant", effectiveDate: "2025.10.1",
+        yearly: {
+          2025: { people: "12 人",    cost: "0.73 億",  budget: "0.183 億" },
+          2026: { people: "48 人",    cost: "2.92 億",  budget: "2.92 億" },
+          2027: { people: "72 人",    cost: "4.38 億",  budget: "4.38 億" },
+          2028: { people: "90 人",    cost: "5.48 億",  budget: "5.48 億" },
+          2029: { people: "103 人",   cost: "6.27 億",  budget: "6.27 億" },
+        },
+        indication: [
+          "與 carboplatin 及 pemetrexed 併用，適用於罹患帶有表皮生長因子受體(EGFR) exon 20 插入突變之局部晚期或轉移性非小細胞肺癌 (NSCLC) 的成人病人，作為第一線治療。"
+        ]
+      },
+      {
+        id: 3, disease: "乳癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+        yearly: {
+          2025: { people: "1,591 人", cost: "15.44 億", budget: "8.978 億" },
+          2026: { people: "2,716 人", cost: "26.36 億", budget: "26.36 億" },
+          2027: { people: "3,650 人", cost: "35.43 億", budget: "35.43 億" },
+          2028: { people: "4,380 人", cost: "42.52 億", budget: "42.52 億" },
+          2029: { people: "4,950 人", cost: "48.05 億", budget: "48.05 億" },
+        },
+        indication: [
+          "早期三陰性乳癌：非轉移性、第 II 期至第 IIIb 期（ cT1c N1-2 或 T2-4 N0-2）成年病人，限至多使用 17 個療程。"
+        ]
+      },
+      {
+        id: 4, disease: "大腸直腸癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+        yearly: {
+          2025: { people: "1,977 人", cost: "19.75 億", budget: "11.479 億" },
+          2026: { people: "3,377 人", cost: "33.74 億", budget: "33.74 億" },
+          2027: { people: "4,536 人", cost: "45.32 億", budget: "45.32 億" },
+          2028: { people: "5,443 人", cost: "54.39 億", budget: "54.39 億" },
+          2029: { people: "6,150 人", cost: "61.46 億", budget: "61.46 億" },
+        },
+        indication: [
+          "無法切除或轉移性高微衛星不穩定性(MSI-H)或錯誤配對修復功能不足性(dMMR)大腸直腸癌 (CRC)之成年病人第一線治療。"
+        ]
+      },
+      {
+        id: 5, disease: "多發性骨髓瘤", ingredient: "Elranatamab", product: "埃瑞非 / Elrexfio", effectiveDate: "2025.5.1",
+        yearly: {
+          2025: { people: "826 人",   cost: "9.09 億",  budget: "6.06 億" },
+          2026: { people: "1,240 人", cost: "13.65 億", budget: "13.65 億" },
+          2027: { people: "1,550 人", cost: "17.06 億", budget: "17.06 億" },
+          2028: { people: "1,798 人", cost: "19.79 億", budget: "19.79 億" },
+          2029: { people: "1,980 人", cost: "21.80 億", budget: "21.80 億" },
+        },
+        indication: [
+          "先前曾接受至少四線療法 (包括一種蛋白酶體抑制劑、一種免疫調節劑和一種抗 CD38 單株抗體)，並在最近治療後顯示為疾病惡化的復發性或難治性多發性骨髓瘤成人病人，且須具有良好日常體能狀態 (ECOG≤2)。"
+        ]
+      },
+      {
+        id: 6, disease: "多發性骨髓瘤", ingredient: "Teclistamab", product: "泰比力 / Tecvayli", effectiveDate: "2025.5.1",
+        yearly: {
+          2025: { people: "256 人",   cost: "4.71 億",  budget: "3.14 億" },
+          2026: { people: "384 人",   cost: "7.07 億",  budget: "7.07 億" },
+          2027: { people: "480 人",   cost: "8.83 億",  budget: "8.83 億" },
+          2028: { people: "557 人",   cost: "10.25 億", budget: "10.25 億" },
+          2029: { people: "613 人",   cost: "11.28 億", budget: "11.28 億" },
+        },
+        indication: [
+          "先前曾接受至少四線療法 (包括一種蛋白酶體抑制劑、一種免疫調節劑和一種抗 CD38 單株抗體)，並在最近治療後顯示疾病惡化的復發性或難治性多發性骨髓瘤成人病人，且須具有良好日常體能狀態 (ECOG ≤ 2)。"
+        ]
+      },
+      {
+        id: 7, disease: "淋巴癌", ingredient: "Glofitamab", product: "葛倫維 / Columvi", effectiveDate: "2025.8.1",
+        yearly: {
+          2025: { people: "99 人",    cost: "3.19 億",  budget: "1.329 億" },
+          2026: { people: "238 人",   cost: "7.66 億",  budget: "7.66 億" },
+          2027: { people: "333 人",   cost: "10.72 億", budget: "10.72 億" },
+          2028: { people: "400 人",   cost: "12.88 億", budget: "12.88 億" },
+          2029: { people: "448 人",   cost: "14.43 億", budget: "14.43 億" },
+        },
+        indication: [
+          "先前曾接受至少兩線全身治療之復發性或難治性瀰漫性大 B 細胞淋巴瘤 (DLBCL) 的成人病人，具 CD20 抗原陽性，一線曾接受 rituximab 合併化學治療 (包含CD20)，及含有 anthracycline 類藥物的治療，治療四個療程以上復發或是於治療中發生疾病惡化者。"
+        ]
+      },
+      {
+        id: 8, disease: "淋巴癌", ingredient: "Epcoritamab", product: "益平力 / Epkinly", effectiveDate: "2025.8.1",
+        yearly: {
+          2025: { people: "74 人",    cost: "1.63 億",  budget: "0.679 億" },
+          2026: { people: "178 人",   cost: "3.91 億",  budget: "3.91 億" },
+          2027: { people: "249 人",   cost: "5.48 億",  budget: "5.48 億" },
+          2028: { people: "299 人",   cost: "6.58 億",  budget: "6.58 億" },
+          2029: { people: "335 人",   cost: "7.37 億",  budget: "7.37 億" },
+        },
+        indication: [
+          "先前曾接受至少兩線全身治療之復發性或難治性瀰漫性大 B 細胞淋巴瘤 (DLBCL) 的成人病人，具 CD20 抗原陽性，一線曾接受 rituximab 合併化學治療 (包含CD20)，及含有 anthracycline 類藥物的治療，治療四個療程以上復發或是於治療中發生疾病惡化者。"
+        ]
+      },
+      {
+        id: 9, disease: "淋巴癌", ingredient: "Tafasitamab", product: "敏珠維/ Minjuvi", effectiveDate: "2025.10.1",
+        yearly: {
+          2025: { people: "12 人",    cost: "0.38 億",  budget: "0.095 億" },
+          2026: { people: "48 人",    cost: "1.52 億",  budget: "1.52 億" },
+          2027: { people: "72 人",    cost: "2.28 億",  budget: "2.28 億" },
+          2028: { people: "86 人",    cost: "2.73 億",  budget: "2.73 億" },
+          2029: { people: "98 人",    cost: "3.10 億",  budget: "3.10 億" },
+        },
+        indication: [
+          "與lenalidomide併用及接續單獨使用，適用於治療復發型(relapsed)或難治型(refractory)且不適合接受自體幹細胞移植(ASCT)的瀰漫性大型B細胞淋巴瘤(DLBCL)成人病人。"
+        ]
+      },
+      {
+        id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "口服科賽果 /Koselugo", effectiveDate: "2025.2.1",
+        yearly: {
+          2025: { people: "52 人",    cost: "1 億",     budget: "1.623 億" },
+          2026: { people: "89 人",    cost: "1.71 億",  budget: "1.71 億" },
+          2027: { people: "120 人",   cost: "2.31 億",  budget: "2.31 億" },
+          2028: { people: "144 人",   cost: "2.77 億",  budget: "2.77 億" },
+          2029: { people: "163 人",   cost: "3.13 億",  budget: "3.13 億" },
+        },
+        indication: [
+          "3 歲以上至未滿 18 歲第 1 型神經纖維瘤 (NF1) 合併有症狀且無法手術切除的叢狀神經纖維瘤 (PN) 之兒童病患。"
+        ]
+      },
+    ];
+    void _LEGACY;
+
+    // Track selected year per row (default to first available year)
+    const selectedYears = {};
+    data.forEach(d => {
+      selectedYears[d.id] = Number(Object.keys(d.yearly)[0]);
+    });
+
+    // Populate disease filter
+    const diseases = [...new Set(data.map(d => d.disease))];
+    const filterSelect = document.getElementById("filterDisease");
+    diseases.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d;
+      opt.textContent = d;
+      filterSelect.appendChild(opt);
+    });
+
+    const tableHead = document.getElementById("tableHead");
+    const tableBody = document.getElementById("tableBody");
+    const cardList = document.getElementById("cardList");
+    const noResults = document.getElementById("noResults");
+    const noResultsMobile = document.getElementById("noResultsMobile");
+    const searchInput = document.getElementById("searchInput");
+
+    function getYearOptions(row) {
+      const years = Object.keys(row.yearly).map(Number);
+      const selected = selectedYears[row.id];
+      return years.map(y =>
+        `<option value="${y}"${y === selected ? ' selected' : ''}>${y}</option>`
+      ).join("");
+    }
+
+    function getYearData(row) {
+      return row.yearly[selectedYears[row.id]];
+    }
+
+    function customColTh() {
+      return customColumns.map(c => `<th>${c.name}</th>`).join("");
+    }
+    function customColTd(row) {
+      const custom = row.custom || {};
+      return customColumns.map(c => `<td>${custom[c.id] || ""}</td>`).join("");
+    }
+    function customColCard(row) {
+      const custom = row.custom || {};
+      return customColumns.map(c =>
+        `<div class="card-field"><label>${c.name}</label><span>${custom[c.id] || "-"}</span></div>`
+      ).join("");
+    }
+
+    function renderHead() {
+      tableHead.innerHTML = `<tr>
+        <th>商品名(中文/英文)</th>
+        <th>疾病別</th>
+        <th>健保給付</th>
+        <th>成分名</th>
+        <th>年度</th>
+        <th class="num">嘉惠人數年度預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
+        <th class="num">一年藥費影響預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
+        <th class="num">專款預估支用額度 <span class="info-icon" data-info="採生效日起算，截至年底或退出專款生效日之全年月數佔比，乘以健保署估算之該品項首年藥費支出額度。|||範例：Selumetinib / Koselugo capsules 給付為 2025.2.1 生效，故 2025 年度的藥費支出預估 = ( 11 個月 / 12 個月 ) x 1.77 億 = 1.623 億元。">?</span></th>
+        ${customColTh()}
+        <th>適應症給付範圍</th>
+        <th>引用連結</th>
+      </tr>`;
+    }
+
+    function render() {
+      const diseaseFilter = filterSelect.value;
+      const search = searchInput.value.trim().toLowerCase();
+
+      const filtered = data.filter(row => {
+        if (diseaseFilter && row.disease !== diseaseFilter) return false;
+        if (search) {
+          const yd = getYearData(row);
+          const custom = row.custom || {};
+          const customVals = customColumns.map(c => custom[c.id] || "").join(" ");
+          const haystack = `${row.disease} ${row.ingredient} ${row.product} ${yd.people} ${yd.cost} ${yd.budget} ${customVals}`.toLowerCase();
+          if (!haystack.includes(search)) return false;
+        }
+        return true;
+      });
+
+      renderHead();
+
+      // Table
+      tableBody.innerHTML = filtered.map(row => {
+        const yd = getYearData(row);
+        return `
+        <tr data-row-id="${row.id}">
+          <td>${row.product}</td>
+          <td>${row.disease}</td>
+          <td class="calendar-cell">
+            <span class="calendar-icon" data-info="專款給付生效日期：${row.effectiveDate}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+          </td>
+          <td>${row.ingredient}</td>
+          <td>
+            <select class="year-select" data-row-id="${row.id}">
+              ${getYearOptions(row)}
+            </select>
+          </td>
+          <td class="num" data-field="people">${yd.people}</td>
+          <td class="num" data-field="cost">${yd.cost}</td>
+          <td class="num" data-field="budget">${yd.budget}</td>
+          ${customColTd(row)}
+          <td class="detail-cell">
+            <a class="detail-link" href="#"
+               data-ingredient="${row.ingredient}"
+               data-product-en="${row.product.split('/').pop().trim()}"
+               data-indication="${row.indication.map(t => t.replace(/"/g, '&quot;')).join('|||')}">詳細資料</a>
+          </td>
+          <td>
+            <a class="link-btn" href="#" title="開啟連結">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </td>
+        </tr>`;
+      }).join("");
+
+      // Cards
+      cardList.innerHTML = filtered.map(row => {
+        const yd = getYearData(row);
+        return `
+        <div class="card" data-row-id="${row.id}">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${row.product}</div>
+              <div class="card-subtitle">${row.ingredient}</div>
+            </div>
+            <span class="card-disease">${row.disease}</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-field">
+              <label>年度</label>
+              <select class="card-year-select" data-row-id="${row.id}">
+                ${getYearOptions(row)}
+              </select>
+            </div>
+            <div class="card-field"><label>健保給付生效</label><span>${row.effectiveDate}</span></div>
+            <div class="card-field"><label>嘉惠人數預估</label><span data-field="people">${yd.people}</span></div>
+            <div class="card-field"><label>一年藥費影響</label><span data-field="cost">${yd.cost}</span></div>
+            <div class="card-field"><label>專款預估額度</label><span data-field="budget">${yd.budget}</span></div>
+            ${customColCard(row)}
+          </div>
+          <div class="card-indication" style="display:none;">
+            <ul>${row.indication.map(t => `<li>${t}</li>`).join("")}</ul>
+          </div>
+          <div class="card-actions">
+            <a href="#" onclick="event.preventDefault();const el=this.closest('.card').querySelector('.card-indication');el.style.display=el.style.display==='none'?'block':'none';">詳細資料</a>
+            <a href="#">引用連結</a>
+          </div>
+        </div>`;
+      }).join("");
+
+      const empty = filtered.length === 0;
+      noResults.style.display = empty ? "block" : "none";
+      noResultsMobile.style.display = empty ? "block" : "none";
+    }
+
+    // Update cells in-place when year changes (no full re-render)
+    function updateRowYear(rowId, year) {
+      selectedYears[rowId] = year;
+      const row = data.find(d => d.id === rowId);
+      const yd = row.yearly[year];
+
+      // Update table row
+      const tr = tableBody.querySelector(`tr[data-row-id="${rowId}"]`);
+      if (tr) {
+        tr.querySelector('[data-field="people"]').textContent = yd.people;
+        tr.querySelector('[data-field="cost"]').textContent = yd.cost;
+        tr.querySelector('[data-field="budget"]').textContent = yd.budget;
+      }
+
+      // Update card
+      const card = cardList.querySelector(`.card[data-row-id="${rowId}"]`);
+      if (card) {
+        card.querySelector('[data-field="people"]').textContent = yd.people;
+        card.querySelector('[data-field="cost"]').textContent = yd.cost;
+        card.querySelector('[data-field="budget"]').textContent = yd.budget;
+      }
+
+      // Sync the other select (table ↔ card)
+      document.querySelectorAll(`select[data-row-id="${rowId}"]`).forEach(sel => {
+        sel.value = year;
+      });
+    }
+
+    // Event delegation for year selects
+    document.addEventListener("change", (e) => {
+      const sel = e.target.closest("select[data-row-id]");
+      if (sel) {
+        updateRowYear(Number(sel.dataset.rowId), Number(sel.value));
+      }
+    });
+
+    filterSelect.addEventListener("change", render);
+    searchInput.addEventListener("input", render);
+    render();
+
+    // Sticky column scroll shadow
+    const tableScroll = document.getElementById("tableScroll");
+    tableScroll.addEventListener("scroll", () => {
+      tableScroll.classList.toggle("scrolled", tableScroll.scrollLeft > 0);
+    });
+
+    // ── Tooltip logic ──
+    const tooltipEl = document.createElement("div");
+    tooltipEl.className = "tooltip";
+    tooltipEl.style.display = "none";
+    document.body.appendChild(tooltipEl);
+
+    let currentAnchor = null;
+    let showTimeout = null;
+    let hideTimeout = null;
+
+    const TOOLTIP_SELECTOR = ".detail-link[data-indication], .info-icon[data-info], .calendar-icon[data-info]";
+
+    function buildTooltipContent(anchor) {
+      if (anchor.dataset.indication) {
+        const ingredient = anchor.dataset.ingredient;
+        const productEn = anchor.dataset.productEn;
+        const items = anchor.dataset.indication.split("|||");
+        return {
+          html: `<div class="tooltip-header">${ingredient} / ${productEn}</div>` +
+                `<ul>${items.map(t => `<li>${t}</li>`).join("")}</ul>`,
+          size: "size-wide"
+        };
+      }
+      if (anchor.dataset.info) {
+        const parts = anchor.dataset.info.split("|||");
+        const isShort = parts.length === 1 && parts[0].length < 40;
+        return {
+          html: parts.map(p => `<p style="margin:0 0 8px 0;">${p}</p>`).join(""),
+          size: isShort ? "size-auto" : "size-wide"
+        };
+      }
+      return null;
+    }
+
+    function positionTooltip(anchor) {
+      tooltipEl.classList.remove("visible", "above", "below");
+      tooltipEl.style.left = "0px";
+      tooltipEl.style.top = "0px";
+      tooltipEl.style.display = "block";
+
+      const rect = anchor.getBoundingClientRect();
+      const tipRect = tooltipEl.getBoundingClientRect();
+      const gap = 10;
+
+      let top, direction;
+      if (rect.bottom + tipRect.height + gap < window.innerHeight) {
+        top = rect.bottom + gap;
+        direction = "below";
+      } else if (rect.top - tipRect.height - gap > 0) {
+        top = rect.top - tipRect.height - gap;
+        direction = "above";
+      } else {
+        top = rect.bottom + gap;
+        direction = "below";
+      }
+
+      let left = rect.left + rect.width / 2 - tipRect.width / 2;
+      if (left < 8) left = 8;
+      if (left + tipRect.width > window.innerWidth - 8) {
+        left = window.innerWidth - tipRect.width - 8;
+      }
+
+      tooltipEl.style.left = left + "px";
+      tooltipEl.style.top = top + "px";
+
+      const arrowLeft = Math.min(Math.max(rect.left + rect.width / 2 - left, 12), tipRect.width - 12);
+      tooltipEl.style.setProperty("--arrow-left", arrowLeft + "px");
+
+      tooltipEl.classList.add(direction);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          tooltipEl.classList.add("visible");
+        });
+      });
+    }
+
+    function showTooltipFor(anchor) {
+      clearTimeout(hideTimeout);
+      clearTimeout(showTimeout);
+
+      if (currentAnchor === anchor && tooltipEl.classList.contains("visible")) return;
+
+      const content = buildTooltipContent(anchor);
+      if (!content) return;
+
+      currentAnchor = anchor;
+
+      // If already showing, switch immediately
+      if (tooltipEl.style.display === "block" && tooltipEl.classList.contains("visible")) {
+        tooltipEl.classList.remove("visible", "above", "below", "size-auto", "size-wide");
+        tooltipEl.innerHTML = content.html;
+        tooltipEl.classList.add(content.size);
+        positionTooltip(anchor);
+        return;
+      }
+
+      showTimeout = setTimeout(() => {
+        tooltipEl.classList.remove("above", "below", "size-auto", "size-wide");
+        tooltipEl.innerHTML = content.html;
+        tooltipEl.classList.add(content.size);
+        positionTooltip(anchor);
+      }, 80);
+    }
+
+    function scheduleHide() {
+      clearTimeout(showTimeout);
+      hideTimeout = setTimeout(() => {
+        tooltipEl.classList.remove("visible");
+        currentAnchor = null;
+        setTimeout(() => {
+          if (!currentAnchor) {
+            tooltipEl.style.display = "none";
+            tooltipEl.classList.remove("above", "below", "size-auto", "size-wide");
+          }
+        }, 200);
+      }, 100);
+    }
+
+    // Use mouseover/mouseout on document for reliable delegation
+    document.addEventListener("mouseover", (e) => {
+      const target = e.target.closest(TOOLTIP_SELECTOR);
+      if (target) {
+        showTooltipFor(target);
+      }
+    });
+
+    document.addEventListener("mouseout", (e) => {
+      const target = e.target.closest(TOOLTIP_SELECTOR);
+      if (target) {
+        const related = e.relatedTarget;
+        // Only hide if we're actually leaving the trigger element
+        if (!related || !target.contains(related)) {
+          scheduleHide();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
