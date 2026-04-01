@@ -1,5 +1,7 @@
 // Shared default data & localStorage helpers
 const STORAGE_KEY = "cdf_drugs_data";
+const DATA_VERSION_KEY = "cdf_data_version";
+const DATA_VERSION = 3; // bump to force reload from DEFAULT_DATA
 const COLUMNS_KEY = "cdf_custom_columns";
 
 // Custom columns: { id, name, position: "before_indication"|"after_budget" }
@@ -23,13 +25,13 @@ function getNextColId(cols) {
 
 const DEFAULT_DATA = [
   {
-    id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+    id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "尚未給付",
     yearly: {
-      2025: { people: "34 人", cost: "1.77 億", budget: "1.623 億" },
-      2026: { people: "58 人", cost: "3.02 億", budget: "3.02 億" },
-      2027: { people: "79 人", cost: "4.12 億", budget: "4.12 億" },
-      2028: { people: "95 人", cost: "4.95 億", budget: "4.95 億" },
-      2029: { people: "108 人", cost: "5.63 億", budget: "5.63 億" },
+      2025: { people: "-", cost: "-", budget: "-" },
+      2026: { people: "-", cost: "-", budget: "-" },
+      2027: { people: "-", cost: "-", budget: "-" },
+      2028: { people: "-", cost: "-", budget: "-" },
+      2029: { people: "-", cost: "-", budget: "-" },
     },
     indication: [
       "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
@@ -37,13 +39,13 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "2025.6.1",
+    id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "-",
     yearly: {
-      2025: { people: "24 人", cost: "1.04 億", budget: "0.763 億" },
-      2026: { people: "41 人", cost: "1.78 億", budget: "1.78 億" },
-      2027: { people: "55 人", cost: "2.39 億", budget: "2.39 億" },
-      2028: { people: "66 人", cost: "2.87 億", budget: "2.87 億" },
-      2029: { people: "75 人", cost: "3.26 億", budget: "3.26 億" },
+      2025: { people: "-", cost: "-", budget: "-" },
+      2026: { people: "-", cost: "-", budget: "-" },
+      2027: { people: "-", cost: "-", budget: "-" },
+      2028: { people: "-", cost: "-", budget: "-" },
+      2029: { people: "-", cost: "-", budget: "-" },
     },
     indication: [
       "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
@@ -51,7 +53,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "芮博定 / Rybrevant", effectiveDate: "2025.10.1",
+    id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "肺倍恩 / Rybrevant", effectiveDate: "2025.10.1",
     yearly: {
       2025: { people: "12 人", cost: "0.73 億", budget: "0.183 億" },
       2026: { people: "48 人", cost: "2.92 億", budget: "2.92 億" },
@@ -90,7 +92,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 5, disease: "多發性骨髓瘤", ingredient: "Elranatamab", product: "埃瑞非 / Elrexfio", effectiveDate: "2025.5.1",
+    id: 5, disease: "多發性骨髓瘤", ingredient: "Elranatamab", product: "癌適求 / Elrexfio", effectiveDate: "2025.5.1",
     yearly: {
       2025: { people: "826 人", cost: "9.09 億", budget: "6.06 億" },
       2026: { people: "1,240 人", cost: "13.65 億", budget: "13.65 億" },
@@ -103,7 +105,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 6, disease: "多發性骨髓瘤", ingredient: "Teclistamab", product: "泰比力 / Tecvayli", effectiveDate: "2025.5.1",
+    id: 6, disease: "多發性骨髓瘤", ingredient: "Teclistamab", product: "特飛立 / Tecvayli", effectiveDate: "2025.5.1",
     yearly: {
       2025: { people: "256 人", cost: "4.71 億", budget: "3.14 億" },
       2026: { people: "384 人", cost: "7.07 億", budget: "7.07 億" },
@@ -116,7 +118,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 7, disease: "淋巴癌", ingredient: "Glofitamab", product: "葛倫維 / Columvi", effectiveDate: "2025.8.1",
+    id: 7, disease: "淋巴癌", ingredient: "Glofitamab", product: "利癌妥 / Columvi", effectiveDate: "2025.8.1",
     yearly: {
       2025: { people: "99 人", cost: "3.19 億", budget: "1.329 億" },
       2026: { people: "238 人", cost: "7.66 億", budget: "7.66 億" },
@@ -129,7 +131,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 8, disease: "淋巴癌", ingredient: "Epcoritamab", product: "益平力 / Epkinly", effectiveDate: "2025.8.1",
+    id: 8, disease: "淋巴癌", ingredient: "Epcoritamab", product: "艾可來 / Epkinly", effectiveDate: "2025.8.1",
     yearly: {
       2025: { people: "74 人", cost: "1.63 億", budget: "0.679 億" },
       2026: { people: "178 人", cost: "3.91 億", budget: "3.91 億" },
@@ -142,7 +144,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 9, disease: "淋巴癌", ingredient: "Tafasitamab", product: "敏珠維/ Minjuvi", effectiveDate: "2025.10.1",
+    id: 9, disease: "淋巴癌", ingredient: "Tafasitamab", product: "明諾凱 / Minjuvi", effectiveDate: "2025.10.1",
     yearly: {
       2025: { people: "12 人", cost: "0.38 億", budget: "0.095 億" },
       2026: { people: "48 人", cost: "1.52 億", budget: "1.52 億" },
@@ -155,7 +157,7 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "口服科賽果 /Koselugo", effectiveDate: "2025.2.1",
+    id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "科舒洛 / Koselugo", effectiveDate: "2025.2.1",
     yearly: {
       2025: { people: "52 人", cost: "1 億", budget: "1.623 億" },
       2026: { people: "89 人", cost: "1.71 億", budget: "1.71 億" },
@@ -171,6 +173,11 @@ const DEFAULT_DATA = [
 
 function loadData() {
   try {
+    const storedVersion = Number(localStorage.getItem(DATA_VERSION_KEY));
+    if (storedVersion < DATA_VERSION) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem(DATA_VERSION_KEY, DATA_VERSION);
+    }
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
   } catch (e) { /* ignore */ }
