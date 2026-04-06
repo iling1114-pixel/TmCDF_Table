@@ -1,7 +1,7 @@
 // Shared default data & localStorage helpers
 const STORAGE_KEY = "cdf_drugs_data";
 const DATA_VERSION_KEY = "cdf_data_version";
-const DATA_VERSION = 3; // bump to force reload from DEFAULT_DATA
+const DATA_VERSION = 7; // bump to force reload from DEFAULT_DATA
 const COLUMNS_KEY = "cdf_custom_columns";
 
 // Custom columns: { id, name, position: "before_indication"|"after_budget" }
@@ -25,76 +25,22 @@ function getNextColId(cols) {
 
 const DEFAULT_DATA = [
   {
-    id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "尚未給付",
+    id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "科舒洛 / Koselugo", effectiveDate: "2025.2.1",
     yearly: {
-      2025: { people: "-", cost: "-", budget: "-" },
-      2026: { people: "-", cost: "-", budget: "-" },
-      2027: { people: "-", cost: "-", budget: "-" },
-      2028: { people: "-", cost: "-", budget: "-" },
-      2029: { people: "-", cost: "-", budget: "-" },
+      2025: { people: "34 人", cost: "1.77 億", budget: "1.623 億" },
+      2026: { people: "89 人", cost: "1.71 億", budget: "1.71 億" },
+      2027: { people: "120 人", cost: "2.31 億", budget: "2.31 億" },
+      2028: { people: "144 人", cost: "2.77 億", budget: "2.77 億" },
+      2029: { people: "163 人", cost: "3.13 億", budget: "3.13 億" },
     },
     indication: [
-      "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
-      "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 pembrolizumab 與 pemetrexed (限使用 Pexeda 或 Apeta) 及含鉑類化學療法併用做為轉移性，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
-    ]
-  },
-  {
-    id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "-",
-    yearly: {
-      2025: { people: "-", cost: "-", budget: "-" },
-      2026: { people: "-", cost: "-", budget: "-" },
-      2027: { people: "-", cost: "-", budget: "-" },
-      2028: { people: "-", cost: "-", budget: "-" },
-      2029: { people: "-", cost: "-", budget: "-" },
-    },
-    indication: [
-      "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
-      "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 atezolizumab 與 bevacizumab (限使用 Avastin) 及 carboplatin、paclitaxel 併用，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
-    ]
-  },
-  {
-    id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "肺倍恩 / Rybrevant", effectiveDate: "2025.10.1",
-    yearly: {
-      2025: { people: "12 人", cost: "0.73 億", budget: "0.183 億" },
-      2026: { people: "48 人", cost: "2.92 億", budget: "2.92 億" },
-      2027: { people: "72 人", cost: "4.38 億", budget: "4.38 億" },
-      2028: { people: "90 人", cost: "5.48 億", budget: "5.48 億" },
-      2029: { people: "103 人", cost: "6.27 億", budget: "6.27 億" },
-    },
-    indication: [
-      "與 carboplatin 及 pemetrexed 併用，適用於罹患帶有表皮生長因子受體(EGFR) exon 20 插入突變之局部晚期或轉移性非小細胞肺癌 (NSCLC) 的成人病人，作為第一線治療。"
-    ]
-  },
-  {
-    id: 3, disease: "乳癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
-    yearly: {
-      2025: { people: "1,591 人", cost: "15.44 億", budget: "8.978 億" },
-      2026: { people: "2,716 人", cost: "26.36 億", budget: "26.36 億" },
-      2027: { people: "3,650 人", cost: "35.43 億", budget: "35.43 億" },
-      2028: { people: "4,380 人", cost: "42.52 億", budget: "42.52 億" },
-      2029: { people: "4,950 人", cost: "48.05 億", budget: "48.05 億" },
-    },
-    indication: [
-      "早期三陰性乳癌：非轉移性、第 II 期至第 IIIb 期（ cT1c N1-2 或 T2-4 N0-2）成年病人，限至多使用 17 個療程。"
-    ]
-  },
-  {
-    id: 4, disease: "大腸直腸癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
-    yearly: {
-      2025: { people: "1,977 人", cost: "19.75 億", budget: "11.479 億" },
-      2026: { people: "3,377 人", cost: "33.74 億", budget: "33.74 億" },
-      2027: { people: "4,536 人", cost: "45.32 億", budget: "45.32 億" },
-      2028: { people: "5,443 人", cost: "54.39 億", budget: "54.39 億" },
-      2029: { people: "6,150 人", cost: "61.46 億", budget: "61.46 億" },
-    },
-    indication: [
-      "無法切除或轉移性高微衛星不穩定性(MSI-H)或錯誤配對修復功能不足性(dMMR)大腸直腸癌 (CRC)之成年病人第一線治療。"
+      "3 歲以上至未滿 18 歲第 1 型神經纖維瘤 (NF1) 合併有症狀且無法手術切除的叢狀神經纖維瘤 (PN) 之兒童病患。"
     ]
   },
   {
     id: 5, disease: "多發性骨髓瘤", ingredient: "Elranatamab", product: "癌適求 / Elrexfio", effectiveDate: "2025.5.1",
     yearly: {
-      2025: { people: "826 人", cost: "9.09 億", budget: "6.06 億" },
+      2025: { people: "24 人", cost: "1.04 億", budget: "0.763 億" },
       2026: { people: "1,240 人", cost: "13.65 億", budget: "13.65 億" },
       2027: { people: "1,550 人", cost: "17.06 億", budget: "17.06 億" },
       2028: { people: "1,798 人", cost: "19.79 億", budget: "19.79 億" },
@@ -107,7 +53,7 @@ const DEFAULT_DATA = [
   {
     id: 6, disease: "多發性骨髓瘤", ingredient: "Teclistamab", product: "特飛立 / Tecvayli", effectiveDate: "2025.5.1",
     yearly: {
-      2025: { people: "256 人", cost: "4.71 億", budget: "3.14 億" },
+      2025: { people: "12 人", cost: "0.73 億", budget: "0.763 億" },
       2026: { people: "384 人", cost: "7.07 億", budget: "7.07 億" },
       2027: { people: "480 人", cost: "8.83 億", budget: "8.83 億" },
       2028: { people: "557 人", cost: "10.25 億", budget: "10.25 億" },
@@ -118,9 +64,63 @@ const DEFAULT_DATA = [
     ]
   },
   {
+    id: 3, disease: "乳癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+    yearly: {
+      2025: { people: "826 人", cost: "9.09 億", budget: "5.303 億" },
+      2026: { people: "2,716 人", cost: "26.36 億", budget: "26.36 億" },
+      2027: { people: "3,650 人", cost: "35.43 億", budget: "35.43 億" },
+      2028: { people: "4,380 人", cost: "42.52 億", budget: "42.52 億" },
+      2029: { people: "4,950 人", cost: "48.05 億", budget: "48.05 億" },
+    },
+    indication: [
+      "早期三陰性乳癌：非轉移性、第 II 期至第 IIIb 期（ cT1c N1-2 或 T2-4 N0-2）成年病人，限至多使用 17 個療程。"
+    ]
+  },
+  {
+    id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+    yearly: {
+      2025: { people: "1,591 人", cost: "15.44 億", budget: "11.388 億" },
+      2026: { people: "-", cost: "-", budget: "-" },
+      2027: { people: "-", cost: "-", budget: "-" },
+      2028: { people: "-", cost: "-", budget: "-" },
+      2029: { people: "-", cost: "-", budget: "-" },
+    },
+    indication: [
+      "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
+      "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 pembrolizumab 與 pemetrexed (限使用 Pexeda 或 Apeta) 及含鉑類化學療法併用做為轉移性，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
+    ]
+  },
+  {
+    id: 4, disease: "大腸直腸癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
+    yearly: {
+      2025: { people: "265 人", cost: "4.71 億", budget: "2.748 億" },
+      2026: { people: "3,377 人", cost: "33.74 億", budget: "33.74 億" },
+      2027: { people: "4,536 人", cost: "45.32 億", budget: "45.32 億" },
+      2028: { people: "5,443 人", cost: "54.39 億", budget: "54.39 億" },
+      2029: { people: "6,150 人", cost: "61.46 億", budget: "61.46 億" },
+    },
+    indication: [
+      "無法切除或轉移性高微衛星不穩定性(MSI-H)或錯誤配對修復功能不足性(dMMR)大腸直腸癌 (CRC)之成年病人第一線治療。"
+    ]
+  },
+  {
+    id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "2025.6.1",
+    yearly: {
+      2025: { people: "1,591 人", cost: "15.44 億", budget: "11.388 億" },
+      2026: { people: "-", cost: "-", budget: "-" },
+      2027: { people: "-", cost: "-", budget: "-" },
+      2028: { people: "-", cost: "-", budget: "-" },
+      2029: { people: "-", cost: "-", budget: "-" },
+    },
+    indication: [
+      "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
+      "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 atezolizumab 與 bevacizumab (限使用 Avastin) 及 carboplatin、paclitaxel 併用，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
+    ]
+  },
+  {
     id: 7, disease: "淋巴癌", ingredient: "Glofitamab", product: "利癌妥 / Columvi", effectiveDate: "2025.8.1",
     yearly: {
-      2025: { people: "99 人", cost: "3.19 億", budget: "1.329 億" },
+      2025: { people: "74 人", cost: "1.63 億", budget: "0.703 億" },
       2026: { people: "238 人", cost: "7.66 億", budget: "7.66 億" },
       2027: { people: "333 人", cost: "10.72 億", budget: "10.72 億" },
       2028: { people: "400 人", cost: "12.88 億", budget: "12.88 億" },
@@ -133,7 +133,7 @@ const DEFAULT_DATA = [
   {
     id: 8, disease: "淋巴癌", ingredient: "Epcoritamab", product: "艾可來 / Epkinly", effectiveDate: "2025.8.1",
     yearly: {
-      2025: { people: "74 人", cost: "1.63 億", budget: "0.679 億" },
+      2025: { people: "12 人", cost: "0.38 億", budget: "0.703 億" },
       2026: { people: "178 人", cost: "3.91 億", budget: "3.91 億" },
       2027: { people: "249 人", cost: "5.48 億", budget: "5.48 億" },
       2028: { people: "299 人", cost: "6.58 億", budget: "6.58 億" },
@@ -146,7 +146,7 @@ const DEFAULT_DATA = [
   {
     id: 9, disease: "淋巴癌", ingredient: "Tafasitamab", product: "明諾凱 / Minjuvi", effectiveDate: "2025.10.1",
     yearly: {
-      2025: { people: "12 人", cost: "0.38 億", budget: "0.095 億" },
+      2025: { people: "52 人", cost: "1 億", budget: "0.25 億" },
       2026: { people: "48 人", cost: "1.52 億", budget: "1.52 億" },
       2027: { people: "72 人", cost: "2.28 億", budget: "2.28 億" },
       2028: { people: "86 人", cost: "2.73 億", budget: "2.73 億" },
@@ -157,16 +157,16 @@ const DEFAULT_DATA = [
     ]
   },
   {
-    id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "科舒洛 / Koselugo", effectiveDate: "2025.2.1",
+    id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "肺倍恩 / Rybrevant", effectiveDate: "2025.10.1",
     yearly: {
-      2025: { people: "52 人", cost: "1 億", budget: "1.623 億" },
-      2026: { people: "89 人", cost: "1.71 億", budget: "1.71 億" },
-      2027: { people: "120 人", cost: "2.31 億", budget: "2.31 億" },
-      2028: { people: "144 人", cost: "2.77 億", budget: "2.77 億" },
-      2029: { people: "163 人", cost: "3.13 億", budget: "3.13 億" },
+      2025: { people: "99 人", cost: "3.19 億", budget: "0.798 億" },
+      2026: { people: "48 人", cost: "2.92 億", budget: "2.92 億" },
+      2027: { people: "72 人", cost: "4.38 億", budget: "4.38 億" },
+      2028: { people: "90 人", cost: "5.48 億", budget: "5.48 億" },
+      2029: { people: "103 人", cost: "6.27 億", budget: "6.27 億" },
     },
     indication: [
-      "3 歲以上至未滿 18 歲第 1 型神經纖維瘤 (NF1) 合併有症狀且無法手術切除的叢狀神經纖維瘤 (PN) 之兒童病患。"
+      "與 carboplatin 及 pemetrexed 併用，適用於罹患帶有表皮生長因子受體(EGFR) exon 20 插入突變之局部晚期或轉移性非小細胞肺癌 (NSCLC) 的成人病人，作為第一線治療。"
     ]
   },
 ];

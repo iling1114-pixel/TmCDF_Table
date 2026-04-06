@@ -161,32 +161,46 @@
       letter-spacing: 0.08em;
     }
 
-    /* Sticky first column */
-    thead th:first-child,
-    tbody td:first-child {
+    /* Sticky first two columns (疾病別 + 商品名) */
+    thead th:nth-child(1),
+    tbody td:nth-child(1),
+    thead th:nth-child(2),
+    tbody td:nth-child(2) {
       position: sticky;
-      left: 0;
       z-index: 2;
     }
 
-    thead th:first-child {
+    thead th:nth-child(1),
+    tbody td:nth-child(1) {
+      left: 0;
+    }
+
+    thead th:nth-child(2),
+    tbody td:nth-child(2) {
+      left: var(--sticky-col1-width, 120px);
+    }
+
+    thead th:nth-child(1),
+    thead th:nth-child(2) {
       background: #FCEACB;
       z-index: 3;
     }
 
-    tbody td:first-child {
+    tbody td:nth-child(1),
+    tbody td:nth-child(2) {
       background: #fff;
       font-weight: 400;
       color: #241D18;
     }
 
-    tbody tr:hover td:first-child {
-      background: #fff;
+    tbody tr:hover td:nth-child(1),
+    tbody tr:hover td:nth-child(2) {
+      background: #FFFBF2;
     }
 
     /* Shadow on sticky column when scrolled */
-    thead th:first-child::after,
-    tbody td:first-child::after {
+    thead th:nth-child(2)::after,
+    tbody td:nth-child(2)::after {
       content: "";
       position: absolute;
       top: 0;
@@ -199,8 +213,8 @@
       transition: opacity 0.2s;
     }
 
-    .table-scroll.scrolled thead th:first-child::after,
-    .table-scroll.scrolled tbody td:first-child::after {
+    .table-scroll.scrolled thead th:nth-child(2)::after,
+    .table-scroll.scrolled tbody td:nth-child(2)::after {
       opacity: 1;
     }
 
@@ -260,37 +274,11 @@
     }
 
     .detail-link {
-      color: #241D18;
-      text-decoration: none;
+      color: #EF6F00;
+      text-decoration: underline;
       font-size: 0.875rem;
       cursor: pointer;
       padding: 4px 0;
-    }
-
-    .detail-link:hover {
-      color: #EF6F00;
-      text-decoration: underline;
-    }
-
-    .calendar-cell {
-      text-align: center;
-    }
-
-    .calendar-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      color: #EF6F00;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .calendar-icon:hover {
-      background: #FFFBF2;
-      color: #EF6F00;
     }
 
     /* Inline year select */
@@ -335,6 +323,85 @@
       background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23EF6F00' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 8px center;
+    }
+
+    /* Modal overlay for 適應症 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      max-width: 600px;
+      width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .modal-box .modal-header {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #241D18;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #FCEACB;
+    }
+
+    .modal-box .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #7F6E4F;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .modal-box .modal-close:hover {
+      background: #FCEACB;
+    }
+
+    .modal-box ul {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.8;
+      color: #241D18;
+      font-size: 0.9rem;
+    }
+
+    .modal-box li {
+      margin-bottom: 8px;
+    }
+
+    .modal-box li:last-child {
+      margin-bottom: 0;
     }
 
     /* Tooltip */
@@ -599,153 +666,7 @@
     const customColumns = loadColumns();
 
     // ---- legacy inline data kept as fallback reference (not used at runtime) ----
-    const _LEGACY = [{
-        id: 0, disease: "非小細胞肺癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "尚未給付",
-        yearly: {
-          2025: { people: "-",    cost: "-",  budget: "-" },
-          2026: { people: "-",    cost: "-",  budget: "-" },
-          2027: { people: "-",    cost: "-",  budget: "-" },
-          2028: { people: "-",    cost: "-",  budget: "-" },
-          2029: { people: "-",    cost: "-",  budget: "-" },
-        },
-        indication: [
-          "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
-          "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 pembrolizumab 與 pemetrexed (限使用 Pexeda 或 Apeta) 及含鉑類化學療法併用做為轉移性，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
-        ]
-      },
-      {
-        id: 1, disease: "非小細胞肺癌", ingredient: "Atezolizumab", product: "泰聖奇 / Tecentriq", effectiveDate: "-",
-        yearly: {
-          2025: { people: "-",    cost: "-",  budget: "-" },
-          2026: { people: "-",    cost: "-",  budget: "-" },
-          2027: { people: "-",    cost: "-",  budget: "-" },
-          2028: { people: "-",    cost: "-",  budget: "-" },
-          2029: { people: "-",    cost: "-",  budget: "-" },
-        },
-        indication: [
-          "非小細胞肺癌第一線用藥、鱗狀非小細胞肺癌第二線用藥、肺腺癌第三線用藥。",
-          "非小細胞肺癌轉移性非鱗狀非小細胞肺癌第一線，限 atezolizumab 與 bevacizumab (限使用 Avastin) 及 carboplatin、paclitaxel 併用，不具有 EGFR/ALK/ROS-1 腫瘤基因異常。"
-        ]
-      },
-      {
-        id: 2, disease: "非小細胞肺癌", ingredient: "Amivantamab", product: "肺倍恩 / Rybrevant", effectiveDate: "2025.10.1",
-        yearly: {
-          2025: { people: "12 人",    cost: "0.73 億",  budget: "0.183 億" },
-          2026: { people: "48 人",    cost: "2.92 億",  budget: "2.92 億" },
-          2027: { people: "72 人",    cost: "4.38 億",  budget: "4.38 億" },
-          2028: { people: "90 人",    cost: "5.48 億",  budget: "5.48 億" },
-          2029: { people: "103 人",   cost: "6.27 億",  budget: "6.27 億" },
-        },
-        indication: [
-          "與 carboplatin 及 pemetrexed 併用，適用於罹患帶有表皮生長因子受體(EGFR) exon 20 插入突變之局部晚期或轉移性非小細胞肺癌 (NSCLC) 的成人病人，作為第一線治療。"
-        ]
-      },
-      {
-        id: 3, disease: "乳癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
-        yearly: {
-          2025: { people: "1,591 人", cost: "15.44 億", budget: "8.978 億" },
-          2026: { people: "2,716 人", cost: "26.36 億", budget: "26.36 億" },
-          2027: { people: "3,650 人", cost: "35.43 億", budget: "35.43 億" },
-          2028: { people: "4,380 人", cost: "42.52 億", budget: "42.52 億" },
-          2029: { people: "4,950 人", cost: "48.05 億", budget: "48.05 億" },
-        },
-        indication: [
-          "早期三陰性乳癌：非轉移性、第 II 期至第 IIIb 期（ cT1c N1-2 或 T2-4 N0-2）成年病人，限至多使用 17 個療程。"
-        ]
-      },
-      {
-        id: 4, disease: "大腸直腸癌", ingredient: "Pembrolizumab", product: "吉舒達 / Keytruda", effectiveDate: "2025.6.1",
-        yearly: {
-          2025: { people: "1,977 人", cost: "19.75 億", budget: "11.479 億" },
-          2026: { people: "3,377 人", cost: "33.74 億", budget: "33.74 億" },
-          2027: { people: "4,536 人", cost: "45.32 億", budget: "45.32 億" },
-          2028: { people: "5,443 人", cost: "54.39 億", budget: "54.39 億" },
-          2029: { people: "6,150 人", cost: "61.46 億", budget: "61.46 億" },
-        },
-        indication: [
-          "無法切除或轉移性高微衛星不穩定性(MSI-H)或錯誤配對修復功能不足性(dMMR)大腸直腸癌 (CRC)之成年病人第一線治療。"
-        ]
-      },
-      {
-        id: 5, disease: "多發性骨髓瘤", ingredient: "Elranatamab", product: "癌適求 / Elrexfio", effectiveDate: "2025.5.1",
-        yearly: {
-          2025: { people: "826 人",   cost: "9.09 億",  budget: "6.06 億" },
-          2026: { people: "1,240 人", cost: "13.65 億", budget: "13.65 億" },
-          2027: { people: "1,550 人", cost: "17.06 億", budget: "17.06 億" },
-          2028: { people: "1,798 人", cost: "19.79 億", budget: "19.79 億" },
-          2029: { people: "1,980 人", cost: "21.80 億", budget: "21.80 億" },
-        },
-        indication: [
-          "先前曾接受至少四線療法 (包括一種蛋白酶體抑制劑、一種免疫調節劑和一種抗 CD38 單株抗體)，並在最近治療後顯示為疾病惡化的復發性或難治性多發性骨髓瘤成人病人，且須具有良好日常體能狀態 (ECOG≤2)。"
-        ]
-      },
-      {
-        id: 6, disease: "多發性骨髓瘤", ingredient: "Teclistamab", product: "特飛立 / Tecvayli", effectiveDate: "2025.5.1",
-        yearly: {
-          2025: { people: "256 人",   cost: "4.71 億",  budget: "3.14 億" },
-          2026: { people: "384 人",   cost: "7.07 億",  budget: "7.07 億" },
-          2027: { people: "480 人",   cost: "8.83 億",  budget: "8.83 億" },
-          2028: { people: "557 人",   cost: "10.25 億", budget: "10.25 億" },
-          2029: { people: "613 人",   cost: "11.28 億", budget: "11.28 億" },
-        },
-        indication: [
-          "先前曾接受至少四線療法 (包括一種蛋白酶體抑制劑、一種免疫調節劑和一種抗 CD38 單株抗體)，並在最近治療後顯示疾病惡化的復發性或難治性多發性骨髓瘤成人病人，且須具有良好日常體能狀態 (ECOG ≤ 2)。"
-        ]
-      },
-      {
-        id: 7, disease: "淋巴癌", ingredient: "Glofitamab", product: "利癌妥 / Columvi", effectiveDate: "2025.8.1",
-        yearly: {
-          2025: { people: "99 人",    cost: "3.19 億",  budget: "1.329 億" },
-          2026: { people: "238 人",   cost: "7.66 億",  budget: "7.66 億" },
-          2027: { people: "333 人",   cost: "10.72 億", budget: "10.72 億" },
-          2028: { people: "400 人",   cost: "12.88 億", budget: "12.88 億" },
-          2029: { people: "448 人",   cost: "14.43 億", budget: "14.43 億" },
-        },
-        indication: [
-          "先前曾接受至少兩線全身治療之復發性或難治性瀰漫性大 B 細胞淋巴瘤 (DLBCL) 的成人病人，具 CD20 抗原陽性，一線曾接受 rituximab 合併化學治療 (包含CD20)，及含有 anthracycline 類藥物的治療，治療四個療程以上復發或是於治療中發生疾病惡化者。"
-        ]
-      },
-      {
-        id: 8, disease: "淋巴癌", ingredient: "Epcoritamab", product: "艾可來 / Epkinly", effectiveDate: "2025.8.1",
-        yearly: {
-          2025: { people: "74 人",    cost: "1.63 億",  budget: "0.679 億" },
-          2026: { people: "178 人",   cost: "3.91 億",  budget: "3.91 億" },
-          2027: { people: "249 人",   cost: "5.48 億",  budget: "5.48 億" },
-          2028: { people: "299 人",   cost: "6.58 億",  budget: "6.58 億" },
-          2029: { people: "335 人",   cost: "7.37 億",  budget: "7.37 億" },
-        },
-        indication: [
-          "先前曾接受至少兩線全身治療之復發性或難治性瀰漫性大 B 細胞淋巴瘤 (DLBCL) 的成人病人，具 CD20 抗原陽性，一線曾接受 rituximab 合併化學治療 (包含CD20)，及含有 anthracycline 類藥物的治療，治療四個療程以上復發或是於治療中發生疾病惡化者。"
-        ]
-      },
-      {
-        id: 9, disease: "淋巴癌", ingredient: "Tafasitamab", product: "明諾凱 / Minjuvi", effectiveDate: "2025.10.1",
-        yearly: {
-          2025: { people: "12 人",    cost: "0.38 億",  budget: "0.095 億" },
-          2026: { people: "48 人",    cost: "1.52 億",  budget: "1.52 億" },
-          2027: { people: "72 人",    cost: "2.28 億",  budget: "2.28 億" },
-          2028: { people: "86 人",    cost: "2.73 億",  budget: "2.73 億" },
-          2029: { people: "98 人",    cost: "3.10 億",  budget: "3.10 億" },
-        },
-        indication: [
-          "與lenalidomide併用及接續單獨使用，適用於治療復發型(relapsed)或難治型(refractory)且不適合接受自體幹細胞移植(ASCT)的瀰漫性大型B細胞淋巴瘤(DLBCL)成人病人。"
-        ]
-      },
-      {
-        id: 10, disease: "神經纖維瘤", ingredient: "Selumetinib", product: "科舒洛 / Koselugo", effectiveDate: "2025.2.1",
-        yearly: {
-          2025: { people: "52 人",    cost: "1 億",     budget: "1.623 億" },
-          2026: { people: "89 人",    cost: "1.71 億",  budget: "1.71 億" },
-          2027: { people: "120 人",   cost: "2.31 億",  budget: "2.31 億" },
-          2028: { people: "144 人",   cost: "2.77 億",  budget: "2.77 億" },
-          2029: { people: "163 人",   cost: "3.13 億",  budget: "3.13 億" },
-        },
-        indication: [
-          "3 歲以上至未滿 18 歲第 1 型神經纖維瘤 (NF1) 合併有症狀且無法手術切除的叢狀神經纖維瘤 (PN) 之兒童病患。"
-        ]
-      },
-    ];
-    void _LEGACY;
+    void 0;
 
     // Track selected year per row (default to first available year)
     const selectedYears = {};
@@ -798,11 +719,11 @@
 
     function renderHead() {
       tableHead.innerHTML = `<tr>
-        <th>商品名(中文/英文)</th>
         <th>疾病別</th>
-        <th>健保給付</th>
-        <th>成分名</th>
-        <th>年度</th>
+        <th>商品名</th>
+        <th>學名</th>
+        <th>專款給付生效日期</th>
+        <th>預估年度</th>
         <th class="num">嘉惠人數年度預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
         <th class="num">一年藥費影響預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
         <th class="num">專款預估支用額度 <span class="info-icon" data-info="採生效日起算，截至年底或退出專款生效日之全年月數佔比，乘以健保署估算之該品項首年藥費支出額度。|||範例：Selumetinib / Koselugo capsules 給付為 2025.2.1 生效，故 2025 年度的藥費支出預估 = ( 11 個月 / 12 個月 ) x 1.77 億 = 1.623 億元。">?</span></th>
@@ -835,14 +756,10 @@
         const yd = getYearData(row);
         return `
         <tr data-row-id="${row.id}">
-          <td>${row.product}</td>
           <td>${row.disease}</td>
-          <td class="calendar-cell">
-            <span class="calendar-icon" data-info="專款給付生效日期：${row.effectiveDate}">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </span>
-          </td>
+          <td>${row.product}</td>
           <td>${row.ingredient}</td>
+          <td>${row.effectiveDate}</td>
           <td>
             <select class="year-select" data-row-id="${row.id}">
               ${getYearOptions(row)}
@@ -880,12 +797,12 @@
           </div>
           <div class="card-grid">
             <div class="card-field">
-              <label>年度</label>
+              <label>預估年度</label>
               <select class="card-year-select" data-row-id="${row.id}">
                 ${getYearOptions(row)}
               </select>
             </div>
-            <div class="card-field"><label>健保給付生效</label><span>${row.effectiveDate}</span></div>
+            <div class="card-field"><label>專款給付生效日期</label><span>${row.effectiveDate}</span></div>
             <div class="card-field"><label>嘉惠人數預估</label><span data-field="people">${yd.people}</span></div>
             <div class="card-field"><label>一年藥費影響</label><span data-field="cost">${yd.cost}</span></div>
             <div class="card-field"><label>專款預估額度</label><span data-field="budget">${yd.budget}</span></div>
@@ -970,19 +887,9 @@
     let showTimeout = null;
     let hideTimeout = null;
 
-    const TOOLTIP_SELECTOR = ".detail-link[data-indication], .info-icon[data-info], .calendar-icon[data-info]";
+    const TOOLTIP_SELECTOR = ".info-icon[data-info]";
 
     function buildTooltipContent(anchor) {
-      if (anchor.dataset.indication) {
-        const ingredient = anchor.dataset.ingredient;
-        const productEn = anchor.dataset.productEn;
-        const items = anchor.dataset.indication.split("|||");
-        return {
-          html: `<div class="tooltip-header">${ingredient} / ${productEn}</div>` +
-                `<ul>${items.map(t => `<li>${t}</li>`).join("")}</ul>`,
-          size: "size-wide"
-        };
-      }
       if (anchor.dataset.info) {
         const parts = anchor.dataset.info.split("|||");
         const isShort = parts.length === 1 && parts[0].length < 40;
@@ -1091,12 +998,60 @@
       const target = e.target.closest(TOOLTIP_SELECTOR);
       if (target) {
         const related = e.relatedTarget;
-        // Only hide if we're actually leaving the trigger element
         if (!related || !target.contains(related)) {
           scheduleHide();
         }
       }
     });
+
+    // ── Modal logic for 適應症給付範圍 ──
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest(".detail-link[data-indication]");
+      if (!link) return;
+      e.preventDefault();
+
+      const ingredient = link.dataset.ingredient;
+      const productEn = link.dataset.productEn;
+      const items = link.dataset.indication.split("|||");
+
+      const overlay = document.createElement("div");
+      overlay.className = "modal-overlay";
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <button class="modal-close">&times;</button>
+          <div class="modal-header">${ingredient} / ${productEn}</div>
+          <ul>${items.map(t => `<li>${t}</li>`).join("")}</ul>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      requestAnimationFrame(() => overlay.classList.add("visible"));
+
+      const close = () => {
+        overlay.classList.remove("visible");
+        setTimeout(() => overlay.remove(), 200);
+      };
+      overlay.querySelector(".modal-close").addEventListener("click", close);
+      overlay.addEventListener("click", (ev) => {
+        if (ev.target === overlay) close();
+      });
+    });
+
+    // ── Measure first sticky column width for second column offset ──
+    function updateStickyWidth() {
+      const firstTh = tableHead.querySelector("th:first-child");
+      if (firstTh) {
+        const w = firstTh.getBoundingClientRect().width;
+        tableScroll.style.setProperty("--sticky-col1-width", w + "px");
+      }
+    }
+    updateStickyWidth();
+    window.addEventListener("resize", updateStickyWidth);
+
+    // Re-measure after render
+    const _origRender = render;
+    // Patch: measure after each render
+    const observer = new MutationObserver(updateStickyWidth);
+    observer.observe(tableHead, { childList: true, subtree: true });
   </script>
 </body>
 </html>
