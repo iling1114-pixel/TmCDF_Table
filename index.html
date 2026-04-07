@@ -247,6 +247,17 @@
       color: #241D18;
     }
 
+    /* Vertical & horizontal center for 專款給付生效日期 / 適應症給付範圍 / 引用連結 */
+    thead th:nth-child(4),
+    tbody td:nth-child(4),
+    thead th:nth-last-child(2),
+    tbody td:nth-last-child(2),
+    thead th:last-child,
+    tbody td:last-child {
+      vertical-align: middle;
+      text-align: center;
+    }
+
     .num {
       text-align: right;
     }
@@ -724,8 +735,8 @@
         <th>學名</th>
         <th>專款給付生效日期</th>
         <th>預估年度</th>
-        <th class="num">嘉惠人數年度預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
-        <th class="num">一年藥費影響預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數及藥費成長情形，此處的「一年」採用的是醫療科技評估報告所估算之首年數據。">?</span></th>
+        <th class="num">嘉惠人數年度預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的用藥人數，此處採用醫療科技評估報告所估算的首年數據。">?</span></th>
+        <th class="num">一年藥費影響預估 <span class="info-icon" data-info="醫療科技評估 (HTA) 會預估新藥給付後連續五年的藥費成長情形，此處採用醫療科技評估報告所估算的首年數據。">?</span></th>
         <th class="num">專款預估支用額度 <span class="info-icon" data-info="採生效日起算，截至年底或退出專款生效日之全年月數佔比，乘以健保署估算之該品項首年藥費支出額度。|||範例：Selumetinib / Koselugo capsules 給付為 2025.2.1 生效，故 2025 年度的藥費支出預估 = ( 11 個月 / 12 個月 ) x 1.77 億 = 1.623 億元。">?</span></th>
         ${customColTh()}
         <th>適應症給付範圍</th>
